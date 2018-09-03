@@ -67,6 +67,8 @@ func init() {
 	cmdRender.Flags().StringVar(&renderOpts.serviceCIDR, "service-cidr", "10.3.0.0/24", "The CIDR range of cluster services.")
 	cmdRender.Flags().StringVar(&renderOpts.cloudProvider, "cloud-provider", "", "The provider for cloud services.  Empty string for no provider")
 	cmdRender.Flags().StringVar(&renderOpts.networkProvider, "network-provider", "flannel", "CNI network provider (flannel or experimental-canal).")
+	cmdRender.Flags().StringVar(&asset.DefaultImages.Hyperkube, "hyperkube-image", asset.DefaultImages.Hyperkube, "A name of image to run the 'hyperkube' command.")
+	cmdRender.Flags().StringVar(&asset.DefaultImages.Etcd, "etcd-image", asset.DefaultImages.Etcd, "A name of image to run the 'etcd' command.")
 }
 
 func runCmdRender(cmd *cobra.Command, args []string) error {
@@ -104,6 +106,12 @@ func validateRenderOpts(cmd *cobra.Command, args []string) error {
 	}
 	if renderOpts.networkProvider != asset.NetworkFlannel && renderOpts.networkProvider != asset.NetworkCalico && renderOpts.networkProvider != asset.NetworkCanal {
 		return errors.New("Must specify --network-provider flannel or experimental-calico or experimental-canal")
+	}
+	if len(asset.DefaultImages.Hyperkube) == 0 {
+		return errors.New("Must specify non-empty hyperkube-image")
+	}
+	if len(asset.DefaultImages.Etcd) == 0 {
+		return errors.New("Must specify non-empty etcd-image")
 	}
 	return nil
 }
